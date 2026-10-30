@@ -1,0 +1,33 @@
+# Publishes the Lumen phone app: unzips Lumen-phone-app.zip and puts it on GitHub Pages.
+# To update the app later, upload a new Lumen-phone-app.zip and this runs again by itself.
+name: Publish Lumen
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Unzip the app
+        run: |
+          mkdir site
+          unzip -o Lumen-phone-app.zip -d site
+          ls -la site
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v4
